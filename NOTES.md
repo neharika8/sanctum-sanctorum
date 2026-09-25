@@ -21,7 +21,13 @@ This covers:
 
 Nothing from `SPEC.md` was intentionally skipped.
 
-The starting codebase already had `books.py` and `schemas.py` fully implemented. The remaining gaps — loans, orders, member stats, reports, and a few bugs — are what I completed.
+Every file in `app/` had gaps when I received it — either `TODO` comments or `NotImplementedError` stubs. This included:
+
+- `app/schemas.py`: the ISBN-13 checksum was a stub that only checked digit count, not the actual check digit; the email validator didn't strip/lowercase before validating; `OrderCreate` had no validation against empty or duplicate items.
+- `app/services/books.py` / `app/routers/books.py`: no duplicate-ISBN check, no `PATCH` endpoint at all, and `list_books` was missing `min_price`/`max_price` filtering, `sort`, and had a bug computing `total` from the paginated slice instead of the full filtered set.
+- `app/services/members.py`, `app/services/orders.py`, `app/services/loans.py`, `app/services/reports.py`: fully unimplemented (member stats, order creation/pricing, loan borrowing/returns/late fees, top-books report).
+
+I completed all of the above.
 
 ## Decisions / Spec Ambiguities
 
@@ -33,9 +39,9 @@ The starting codebase already had `books.py` and `schemas.py` fully implemented.
 
 ## Git History
 
-I was given the starting code as a ZIP file, not a Git repository, so there was no prior commit history to preserve or diff against.
+I was given the starting code as a ZIP file rather than a Git repository, so there was no prior commit history to preserve. My history begins with my own first fix.
 
-My repository's history therefore begins with my first fix rather than the unmodified starting point. Each commit represents one area of the codebase I completed — model, members, orders, loans, and reports — followed by a final commit adding the remaining files that were already correct in the ZIP and needed no changes.
+Most commits map to one feature area: the Loan model, member fixes (tier check, duplicate email, stats), orders (discounts, stock, cancel fix), loans (borrowing/returns/late fees), and reports. One commit, `Add remaining project files`, is broader than the rest and bundles several files together — including real fixes to `app/schemas.py` (ISBN-13 checksum, email normalization, order-item validation) and `app/routers/books.py`/`app/services/books.py` (duplicate-ISBN check, the `PATCH` endpoint, and search filters/sort/pagination). In hindsight I'd have split that into its own dedicated "Books" commit to keep one clean diff per feature, matching the pattern of the other commits.
 
 ## AI Usage
 
@@ -43,7 +49,7 @@ I used Claude (Anthropic) throughout this assignment to:
 
 - Understand what the assignment documentation was asking for
 - Identify what was missing or broken across the service files
-- Write implementations for the stubbed functions (loans, orders, member stats, reports)
+- Write implementations for the stubbed functions (books, schemas, members, orders, loans, reports)
 - Walk through deployment (Render web service + Postgres)
 - Resolve Windows/PowerShell/Git setup issues
 
